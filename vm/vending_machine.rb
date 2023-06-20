@@ -18,6 +18,10 @@ class VendingMachine
     @sales = 0
   end
 
+  def inform_drink_types
+    @drinks
+  end
+
   # 投入金額の総計を取得できる。
   def current_slot_money
     # 自動販売機に入っているお金を表示する
@@ -47,7 +51,7 @@ class VendingMachine
 # ステップ3　購入
   def sell(drinks)
     case drinks
-    when cola  
+    when :cola  
       #在庫が0の場合
       if @cola[:stock] == 0 
         puts "売り切れ"
@@ -60,9 +64,12 @@ class VendingMachine
         @cola[:stock] -= 1
         @sales += @cola[:price]
         @slot_money -= @cola[:price]
-        return @cola[:name]  # 追記
+        puts "#{@slot_money}円のお釣りです"
+        # 自動販売機に入っているお金を0円に戻す
+        @slot_money = 0
+        return @cola[:name]
       end
-    when water  
+    when :water  
       if @water[:stock] == 0 
         puts "売り切れ"
       elsif  @water[:price] > @slot_money
@@ -71,9 +78,11 @@ class VendingMachine
         @water[:stock] -= 1
         @sales += @water[:price]
         @slot_money -= @water[:price]
-        return @water[:name]  # 追記
+        puts "#{@slot_money}円のお釣りです"
+        @slot_money = 0
+        return @water[:name]
       end
-    when red_bull  
+    when :red_bull  
       if @red_bull[:stock] == 0 
         puts "売り切れ"
       elsif  @red_bull[:price] > @slot_money
@@ -82,7 +91,9 @@ class VendingMachine
         @red_bull[:stock] -= 1
         @sales += @red_bull[:price]
         @slot_money -= @red_bull[:price]
-        return @red_bull[:name]  # 追記
+        puts "#{@slot_money}円のお釣りです"
+        @slot_money = 0
+        return @red_bull[:name]
       end
     else
       puts "cola、water、red_bull のみ選択可能です。"
@@ -91,21 +102,21 @@ class VendingMachine
 
   # 売上計算
   def calculate_sales
-    return @sales
+    "売上金額は#{@sales}円です。" 
   end
 
 # ステップ４　投入金額、在庫の点で購入可能なドリンクのリストを取得
-  def inform
+  def inform_buyable_drinks
     buyable_drinks = @drinks.map do |drink|
-      if (drink[:price] < @slot_money) && (drink[:stock] > 0)
+      if (drink[:price] <= @slot_money) && (drink[:stock] > 0)
         "#{drink[:name]}"
       end
     end
-    p buyable_drinks.compact
+    buyable_drinks.compact
   end
 
 
-# 要件外　新しいジュースの種類の補充
+# 要件外　新しいジュースの種類の補充 実装途中
   def replenished(drink_name,drink_price,drink_stock)
     drink_name = {}
     drink_name [price] = drink_price
@@ -120,5 +131,6 @@ class VendingMachine
     @tea = {price: 150, stock: 5 }  
   end
 end
+
 
 #http://devtesting.jp/tddbc/?TDDBC%E5%A4%A7%E9%98%AA3.0%2F%E8%AA%B2%E9%A1%8C
